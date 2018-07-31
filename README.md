@@ -3,7 +3,7 @@ Add security tokens to FiveM server events that are accessible from the client i
 
 # Features
 * A unique security token is generated each time the server is started. If the token is figured out by a cheater (somehow), a restart will nullify their findings.
-* Tokens can only be requested by the client once. This prevents a cheater from attempting to retreive the token at a later time.
+* Tokens can only be requested by the client once. This prevents a cheater from attempting to retrieve the token at a later time.
 * Players that trigger a server event without a valid security token are kicked from the game.
 
 # Installation
