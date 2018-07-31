@@ -40,8 +40,8 @@ end)
 Events triggered from the client must now be modified to confirm the security token. If there is a security token mismatch, you may trigger the `salty_tokenizer:invalidToken` event in order to kick the offending player: `TriggerEvent('salty_tokenizer:invalidToken', _source)`
 
 ```lua
-RegisterNetEvent('resource:securedEvent', securityToken)
-AddEventHandler('resource:securedEvent', securityToken', function(token)
+RegisterNetEvent('resource:securedEvent')
+AddEventHandler('resource:securedEvent', function(token)
 	local _source = source
 	if token ~= securityToken then
 		TriggerEvent('salty_tokenizer:invalidToken', _source)
