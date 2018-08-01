@@ -3,7 +3,7 @@ Config = {}
 --[[
 	Define the length of the generated token
 --]]
-Config.TokenLength = 10
+Config.TokenLength = 24
 
 --[[
 	Define the character set to be used in generation
