@@ -8,7 +8,7 @@ Add security tokens to FiveM server events that are accessible from the client i
 * Players that trigger a server event without a valid security token are kicked from the game.
 
 # Installation
-There are no dependencies for this resource. The configuration file is set to generate a 10 character alphanumerical security token. If this is insufficient, the character set and length can be adjusted. In addition, the message a player gets if they are kicked due to an invalid token may be adjusted in the configuration file.
+There are no dependencies for this resource. The configuration file is set to generate a 24 character alphanumerical security token. If this is insufficient, the character set and length can be adjusted. In addition, the message a player gets if they are kicked due to an invalid token may be adjusted in the configuration file.
 
 # Usage
 In order to use this resource, both the client and server scripts need adjusted.
