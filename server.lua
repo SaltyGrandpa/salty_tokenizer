@@ -1,8 +1,11 @@
-local tokenRequested = {}
+local didPlayerLoad = {}
+local resourceNames = {}
+local resourceTokens = {}
+
 for Loop = 1, 64 do
-	tokenRequested[Loop] = false
+	didPlayerLoad[Loop] = false
+	resourceNames[Loop] = {}
 end
-local securityToken = false
 
 local Chars = {}
 for Loop = 0, 255 do
@@ -24,7 +27,6 @@ local AddLookup = function(CharSet)
 end
 
 function string.random(Length, CharSet)
-	math.randomseed(os.time())
 	local CharSet = CharSet or '.'
 	if CharSet == '' then
 		return ''
@@ -42,29 +44,63 @@ function string.random(Length, CharSet)
 end
 
 function generateToken()
-	securityToken = string.random(Config.TokenLength, Config.TokenCharset)
-	TriggerEvent('salty_tokenizer:receiveTokenServer', securityToken)
+	return string.random(Config.TokenLength, Config.TokenCharset)
 end
 
-RegisterNetEvent('salty_tokenizer:requestToken')
-AddEventHandler('salty_tokenizer:requestToken', function()
+RegisterNetEvent('salty_tokenizer:playerSpawned')
+AddEventHandler('salty_tokenizer:playerSpawned', function()
 	local _source = source
-	if not tokenRequested[_source] then
-		tokenRequested[_source] = true
-		TriggerClientEvent('salty_tokenizer:receiveTokenClient', _source, securityToken)
+	if not didPlayerLoad[_source] then
+		didPlayerLoad[_source] = true
+		TriggerEvent('salty_tokenizer:playerLoaded', _source)
+	else
+		print(tostring(_source) .. " requested another security token, hacker??")
 	end
 end)
 
-AddEventHandler('salty_tokenizer:invalidToken', function(invalidSrc)
-	DropPlayer(invalidSrc, Config.KickMessage)
+function setupServerResource(resource)
+	resourceTokens[resource] = generateToken()
+	AddEventHandler('salty_tokenizer:playerLoaded', function(player)
+		local _source = player
+		TriggerClientEvent(getObfuscatedEvent(_source, resource), _source, resourceTokens[resource])
+	end)
+end
+
+function secureServerEvent(resource, player, token)
+	local _source = player
+	if token ~= resourceTokens[resource] then
+		DropPlayer(_source, Config.KickMessage)
+		return false
+	end
+	return true
+end
+
+function getObfuscatedEvent(source, resourceName)
+	if resourceNames[source][resourceName] == nil then
+		resourceNames[source][resourceName] = generateToken()
+	end
+	return(resourceNames[source][resourceName])
+end
+
+RegisterNetEvent('salty_tokenizer:requestObfuscation')
+AddEventHandler('salty_tokenizer:requestObfuscation', function(resourceName)
+	local _source = source
+	TriggerClientEvent('salty_tokenizer:obfuscateReceived', _source, resourceName, getObfuscatedEvent(_source, resourceName))
+end)
+
+function init()
+	math.randomseed(os.time())
+	TriggerEvent('salty_tokenizer:serverReady')
+end
+
+AddEventHandler('onServerResourceStart', function (resource)
+    if resource == GetCurrentResourceName() then
+        init()
+    end
 end)
 
 AddEventHandler("playerDropped", function(player, reason)
-    tokenRequested[source] = false
-end)
-
-AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
-	if not securityToken then
-		generateToken()
-	end
+	local _source = source
+    didPlayerLoad[_source] = false
+	resourceNames[_source] = {}
 end)
