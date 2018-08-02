@@ -1,6 +1,13 @@
 Config = {}
 
 --[[
+	Enable verbose output on the console
+	VerboseClient should be disable in production since it exposed tokens
+]]
+Config.VerboseClient = false
+Config.VerboseServer = false
+
+--[[
 	Define the length of the generated token
 --]]
 Config.TokenLength = 24
