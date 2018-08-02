@@ -95,7 +95,7 @@ function setupServerResource(resource)
 	AddEventHandler('salty_tokenizer:playerLoaded', function(player)
 		local _source = player
 		if Config.VerboseServer then
-			print("Sending token for " .. tostring(resource) .. " (Event: " .. tostring(getObfuscatedEvent(_source, resource)) .. " Token: " .. tostring(resourceTokens[resource])) .. ") to Player ID " .. tostring(_source) .. ".")
+			print("Sending token for " .. tostring(resource) .. " (Event: " .. tostring(getObfuscatedEvent(_source, resource)) .. " Token: " .. tostring(resourceTokens[resource]) .. ") to Player ID " .. tostring(_source) .. ".")
 		end
 		TriggerClientEvent(getObfuscatedEvent(_source, resource), _source, resourceTokens[resource])
 	end)
