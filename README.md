@@ -35,7 +35,7 @@ AddEventHandler('salty_tokenizer:serverReady', function()
 end)
 ```
 In order to protect a server event, a simple if statement must be added.
-```
+```lua
 RegisterNetEvent('anticheat-testing:testEvent')
 AddEventHandler('anticheat-testing:testEvent', function(token)
 	local _source = source
