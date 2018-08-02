@@ -1,44 +1,88 @@
-Config = {}
-
---[[
-	Enable verbose output on the console
-	VerboseClient should be disable in production since it exposed tokens
-]]
-Config.VerboseClient = true
-Config.VerboseServer = true
-
---[[
-	Define the length of the generated token
---]]
-Config.TokenLength = 24
-
---[[
-	Define the character set to be used in generation
-	%a%d = all capital and lowercase letters and digits
-	Syntax:
-		.	all characters
-		%a	letters
-		%c	control characters
-		%d	digits
-		%l	lower case letters
-		%p	punctuation characters
-		%s	space characters
-		%u	upper case letters
-		%w	alphanumeric characters
-		%x	hexadecimal digits
-		%z	the character with representation 0
---]]
-Config.TokenCharset = "%a%d"
-
---[[
-	Adjust the delay between when the client deploys the listeners and
-	when the server sends the information.
-	250 seems like a sweet spot here, but it can be reduced or increased if desired.
+local firstSpawn = true
+local resourceNames = {}
+--[[ Structure:
+	['resourceName'] = { id = int, name = string },
+	['resourceName'] = { id = int, name = string },
 ]]
 
-Config.ClientDelay = 250
+RegisterNetEvent("salty_tokenizer:obfuscateReceived")
+AddEventHandler("salty_tokenizer:obfuscateReceived", function(id, name)
+	for resource,property in pairs(resourceNames) do
+		if property.id == id then
+			property.name = name
+			break
+		end
+	end
+end)
 
---[[
-	Define the message given to users with an invalid token
---]]
-Config.KickMessage = "Invalid security token detected."
+function init()	
+	if Config.VerboseClient then
+		print("> > > S A L T Y _ T O K E N I Z E R  < < <")
+	end
+	math.randomseed(GetClockHours() + GetClockMinutes())
+	Citizen.CreateThread(function()
+		TriggerEvent('salty_tokenizer:clientReady')
+	end)
+	Citizen.CreateThread(function()
+		Citizen.Wait(Config.ClientDelay)
+		TriggerServerEvent('salty_tokenizer:playerSpawned')
+	end)
+end
+
+AddEventHandler("playerSpawned", function()
+	if firstSpawn then
+		firstSpawn = false
+		init()
+	end
+end)
+
+function validId(id)
+	if #resourceNames > 0 then
+		for resource,property in pairs(resourceNames) do
+			if property.id == id then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function generateId()
+	local id = math.random(1,100000)
+	while not validId(id) do
+		id = math.random(1,100000)
+		if Config.VerboseClient then
+			print("ID Collision, Generating New ID")
+		end
+	end
+	return id
+end
+
+function requestObfuscatedEventName(resource)
+	if resourceNames[resource] == nil then
+		resourceNames[resource] = { id = generateId(), name = false }
+		TriggerServerEvent('salty_tokenizer:requestObfuscation', resource, resourceNames[resource].id)
+		while not resourceNames[resource].name do
+			Citizen.Wait(0)
+		end
+	end
+	return resourceNames[resource].name
+end
+
+function setupClientResource(resource)
+	local token = false
+	if Config.VerboseClient then
+		print("Deploying Obfuscated Event: " .. tostring(resource) .. " = " .. tostring(requestObfuscatedEventName(resource)))
+	end
+	RegisterNetEvent(requestObfuscatedEventName(resource))
+	AddEventHandler(requestObfuscatedEventName(resource), function(tokenReceived)
+		token = tokenReceived
+		if Config.VerboseClient then
+			print("Obfuscated Event Token Received: " .. tostring(resource) .. " (" .. tostring(requestObfuscatedEventName(resource)) .. "), Token: " .. tostring(token))
+		end
+	end)
+	while not token do
+		Citizen.Wait(0)
+	end
+	return token
+end
