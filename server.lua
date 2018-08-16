@@ -147,7 +147,7 @@ end)
 AddEventHandler('onServerResourceStart', function (resource)
     if resource == GetCurrentResourceName() then
         init()
-    elseif initComplete then
+    elseif resourceTokens[resource] ~= nil and initComplete then
 		if Config.VerboseServer then
 			print("NOTICE: " .. resource .. " was restarted and is no longer protected with security tokens!")
 		end
