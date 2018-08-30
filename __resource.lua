@@ -18,5 +18,6 @@ exports {
 
 server_exports {
 	'setupServerResource',
-	'secureServerEvent'
+	'secureServerEvent',
+	'getResourceToken'
 }
