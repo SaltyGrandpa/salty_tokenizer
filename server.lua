@@ -93,6 +93,10 @@ function getObfuscatedEvent(source, resourceName)
 	return(resourceNames[source][resourceName])
 end
 
+function getResourceToken(resourceName)
+	return resourceTokens[resourceName]
+end
+
 function setupServerResource(resource)
 	resourceTokens[resource] = generateToken()
 	if Config.VerboseServer then
