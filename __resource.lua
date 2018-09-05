@@ -21,3 +21,5 @@ server_exports {
 	'secureServerEvent',
 	'getResourceToken'
 }
+
+file 'init.lua'
