@@ -12,7 +12,7 @@ There are no dependencies for this resource. The configuration file is set to ge
 
 # Usage
 The security token is stored in a variable named `securityToken` on the client side in each resource. In order to retreive the security token for a given resource, you must include the `init.lua` script in your resource's `__resource.lua` file. The `init.lua` script must be included as both a server and client script:
-```
+```lua
 server_script '@salty_tokenizer/init.lua'
 client_script '@salty_tokenizer/init.lua'
 ```
