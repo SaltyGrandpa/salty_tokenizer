@@ -11,29 +11,20 @@ Add security tokens to FiveM server events that are accessible from the client i
 There are no dependencies for this resource. The configuration file is set to generate a 24 character alphanumerical security token. If this is insufficient, the character set and length can be adjusted. In addition, the message a player gets if they are kicked due to an invalid token may be adjusted in the configuration file.
 
 # Usage
-In order to use this resource, both the client and server scripts need adjusted.
+The security token is stored in a variable named `securityToken` on the client side in each resource. In order to retreive the security token for a given resource, you must include the `init.lua` script in your resource's `__resource.lua` file. The `init.lua` script must be included as both a server and client script:
+```
+server_script '@salty_tokenizer/init.lua'
+client_script '@salty_tokenizer/init.lua'
+```
+Note: If you implemented salty_tokenizer prior to the `init.lua` script being released, it will continue to function normally and no changed need to be made.
 
 ## Client
-Tokens can be received by triggering an export once the tokenizer is ready.
-```lua
-local securityToken = nil
-AddEventHandler('salty_tokenizer:clientReady', function()
-	securityToken = exports['salty_tokenizer']:setupClientResource(GetCurrentResourceName())
-end)
-```
-
 Once the token is received, it can be passed along with a server event to be validated on the server-side.
 ```lua
 TriggerServerEvent('anticheat-testing:testEvent', securityToken)
 ```
 
 ## Server
-To prepare a resource server side, an export must be called when the script is ready. Once this export is called, server events can be easily protected against abused server events.
-```lua
-AddEventHandler('salty_tokenizer:serverReady', function()
-	exports['salty_tokenizer']:setupServerResource(GetCurrentResourceName())
-end)
-```
 In order to protect a server event, a simple if statement must be added.
 ```lua
 RegisterNetEvent('anticheat-testing:testEvent')
