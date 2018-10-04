@@ -4,11 +4,6 @@ local resourceNames = {}
 local resourceTokens = {}
 local initComplete = false
 
-for Loop = 1, 64 do
-	didPlayerLoad[Loop] = false
-	resourceNames[Loop] = {}
-end
-
 for Loop = 0, 255 do
 	Chars[Loop+1] = string.char(Loop)
 end
@@ -165,5 +160,14 @@ AddEventHandler("playerDropped", function(player, reason)
 		print("Player ID " .. tostring(_source) .. " dropped, purged obfuscated events.")
 	end
     didPlayerLoad[_source] = false
+	resourceNames[_source] = {}
+end)
+
+AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
+	local _source = source
+	if Config.VerboseServer then
+		print("Player ID " .. tostring(_source) .. " joining, prepping Salty Tokenizer.")
+	end
+	didPlayerLoad[_source] = false
 	resourceNames[_source] = {}
 end)
