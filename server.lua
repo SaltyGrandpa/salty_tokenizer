@@ -4,11 +4,6 @@ local resourceNames = {}
 local resourceTokens = {}
 local initComplete = false
 
-for Loop = 1, 64 do
-	didPlayerLoad[Loop] = false
-	resourceNames[Loop] = {}
-end
-
 for Loop = 0, 255 do
 	Chars[Loop+1] = string.char(Loop)
 end
@@ -53,6 +48,13 @@ function init()
 	TriggerEvent('salty_tokenizer:serverReady')
 end
 
+function initNewPlayer(source)
+	if didPlayerLoad[source] == nil or resourceNames[source] == nil then
+		didPlayerLoad[source] = false
+		resourceNames[source] = {}
+	end
+end
+
 function isTokenUnique(token)
 	for i=1, #resourceNames, 1 do
 		for id,resource in pairs(resourceNames[i]) do
@@ -84,6 +86,7 @@ function generateToken()
 end
 
 function getObfuscatedEvent(source, resourceName)
+	initNewPlayer(source)
 	if resourceNames[source][resourceName] == nil then
 		resourceNames[source][resourceName] = generateToken()
 		if Config.VerboseServer then
@@ -120,7 +123,14 @@ function secureServerEvent(resource, player, token)
 			print("Validating token for " .. tostring(resource) .. " for Player ID " .. tostring(_source) .. ". Provided: " .. tostring(token) .. " Stored: " .. tostring(resourceTokens[resource]))
 		end
 		if token ~= resourceTokens[resource] then
-			DropPlayer(_source, Config.KickMessage)
+			if Config.VerboseServer then
+				print("Invalid token detected! Resource: " .. tostring(resource) .. ", Player ID: " .. tostring(_source) .. ". Provided: " .. tostring(token) .. " Stored: " .. tostring(resourceTokens[resource]))
+			end
+			if Config.CustomAction then
+				Config.CustomActionFunction(_source)
+			else
+				DropPlayer(_source, Config.KickMessage)
+			end
 			return false
 		end
 	end
@@ -137,6 +147,9 @@ RegisterNetEvent('salty_tokenizer:playerSpawned')
 AddEventHandler('salty_tokenizer:playerSpawned', function()
 	local _source = source
 	initComplete = true
+	
+	initNewPlayer(_source)
+	
 	if not didPlayerLoad[_source] then
 		didPlayerLoad[_source] = true
 		if Config.VerboseServer then
