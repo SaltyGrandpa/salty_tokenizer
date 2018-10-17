@@ -56,22 +56,24 @@ function initNewPlayer(source)
 end
 
 function isTokenUnique(token)
-	for i=1, #resourceNames, 1 do
-		for id,resource in pairs(resourceNames[i]) do
-            if resource == token then
+	if #resourceNames > 0 then
+		for i=1, #resourceNames, 1 do
+			for id,resource in pairs(resourceNames[i]) do
+				if resource == token then
+					if Config.VerboseServer then
+						print("Token collision, generating new token.")
+					end
+					return false
+				end
+			end
+		end
+		for resource,storedToken in pairs(resourceTokens) do
+			if storedToken == token then
 				if Config.VerboseServer then
 					print("Token collision, generating new token.")
 				end
 				return false
 			end
-        end
-	end
-	for resource,storedToken in pairs(resourceTokens) do
-		if storedToken == token then
-			if Config.VerboseServer then
-				print("Token collision, generating new token.")
-			end
-			return false
 		end
 	end
 	return true
