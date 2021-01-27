@@ -58,12 +58,14 @@ end
 function isTokenUnique(token)
 	if #resourceNames > 0 then
 		for i=1, #resourceNames, 1 do
-			for id,resource in pairs(resourceNames[i]) do
-				if resource == token then
-					if Config.VerboseServer then
-						print("Token collision, generating new token.")
+			if resourceNames[i] ~= nil then
+				for id,resource in pairs(resourceNames[i]) do
+					if resource == token then
+						if Config.VerboseServer then
+							print("Token collision, generating new token.")
+						end
+						return false
 					end
-					return false
 				end
 			end
 		end
