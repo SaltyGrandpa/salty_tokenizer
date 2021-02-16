@@ -122,8 +122,6 @@ function secureServerEvent(resource, player, token)
 	local _source = player
 	if resourceTokens[resource] == nil then
 		return true
-	elseif _source = "" then -- If the request came from the server, then no need to authenticate the token
-		return true 
 	else
 		if Config.VerboseServer then
 			print("Validating token for " .. tostring(resource) .. " for Player ID " .. tostring(_source) .. ". Provided: " .. tostring(token) .. " Stored: " .. tostring(resourceTokens[resource]))
