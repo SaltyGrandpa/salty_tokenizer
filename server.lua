@@ -82,6 +82,7 @@ function isTokenUnique(token)
 end
 
 function generateToken()
+	math.randomseed(os.time())
 	local token = string.random(Config.TokenLength, Config.TokenCharset)
 	while not isTokenUnique(token) do
 		token = string.random(Config.TokenLength, Config.TokenCharset)
