@@ -8,10 +8,13 @@ Add security tokens to FiveM server events that are accessible from the client i
 * Players that trigger a server event without a valid security token are kicked from the game.
 
 # Installation
-There are no dependencies for this resource. The configuration file is set to generate a 24 character alphanumerical security token. If this is insufficient, the character set and length can be adjusted. In addition, the message a player gets if they are kicked due to an invalid token may be adjusted in the configuration file.
+* Install [yarn](https://github.com/citizenfx/cfx-server-data) (Can be found in `/resources/[system]/[builders]/yarn`)
+* Configure `salty_tokenizer` using the `config.lua` file.
+* Add `ensure salty_tokenizer` to your server config.
+* Restart your server.
 
 # Usage
-The security token is stored in a variable named `securityToken` on the client side in each resource. In order to retreive the security token for a given resource, you must include the `init.lua` script in your resource's `__resource.lua` file. The `init.lua` script must be included as both a server and client script:
+The security token is stored in a variable named `securityToken` on the client side in each resource. In order to retreive the security token for a given resource, you must include the `init.lua` script in your resource's `__resource.lua` or `fxmanifest.lua` file. The `init.lua` script must be included as both a server and client script:
 ```lua
 server_script '@salty_tokenizer/init.lua'
 client_script '@salty_tokenizer/init.lua'
@@ -19,9 +22,19 @@ client_script '@salty_tokenizer/init.lua'
 Note: If you implemented salty_tokenizer prior to the `init.lua` script being released, it will continue to function normally and no changed need to be made.
 
 ## Client
-Once the token is received, it can be passed along with a server event to be validated on the server-side.
+**Once the token is received**, it can be passed along with a server event to be validated on the server-side:
 ```lua
 TriggerServerEvent('anticheat-testing:testEvent', securityToken)
+```
+
+It's recommended to make sure that the client has the token to prevent false positives, like so:
+```lua
+Citizen.CreateThread(function()
+	while securityToken == nil do
+		Citizen.Wait(100)
+	end
+	TriggerServerEvent('anticheat-testing:testEvent', securityToken)
+end)
 ```
 
 ## Server

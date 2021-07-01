@@ -8,29 +8,6 @@ Config.VerboseClient = false
 Config.VerboseServer = false
 
 --[[
-	Define the length of the generated token
---]]
-Config.TokenLength = 24
-
---[[
-	Define the character set to be used in generation
-	%a%d = all capital and lowercase letters and digits
-	Syntax:
-		.	all characters
-		%a	letters
-		%c	control characters
-		%d	digits
-		%l	lower case letters
-		%p	punctuation characters
-		%s	space characters
-		%u	upper case letters
-		%w	alphanumeric characters
-		%x	hexadecimal digits
-		%z	the character with representation 0
---]]
-Config.TokenCharset = "%a%d"
-
---[[
 	Adjust the delay between when the client deploys the listeners and
 	when the server sends the information.
 	250 seems like a sweet spot here, but it can be reduced or increased if desired.

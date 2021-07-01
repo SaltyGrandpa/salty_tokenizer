@@ -1,44 +1,7 @@
-local Chars = {}
 local didPlayerLoad = {}
 local resourceNames = {}
 local resourceTokens = {}
 local initComplete = false
-
-for Loop = 0, 255 do
-	Chars[Loop+1] = string.char(Loop)
-end
-
-local String = table.concat(Chars)
-
-local Built = {['.'] = Chars}
-
-local AddLookup = function(CharSet)
-	local Substitute = string.gsub(String, '[^'..CharSet..']', '')
-	local Lookup = {}
-	for Loop = 1, string.len(Substitute) do
-		Lookup[Loop] = string.sub(Substitute, Loop, Loop)
-	end
-	Built[CharSet] = Lookup
-
-	return Lookup
-end
-
-function string.random(Length, CharSet)
-	local CharSet = CharSet or '.'
-	if CharSet == '' then
-		return ''
-	else
-		local Result = {}
-		local Lookup = Built[CharSet] or AddLookup(CharSet)
-		local Range = #Lookup
-
-		for Loop = 1,Length do
-			Result[Loop] = Lookup[math.random(1, Range)]
-		end
-
-		return table.concat(Result)
-	end
-end
 
 function init()
 	if Config.VerboseServer then
@@ -81,19 +44,10 @@ function isTokenUnique(token)
 	return true
 end
 
-function generateToken()
-	math.randomseed(os.time())
-	local token = string.random(Config.TokenLength, Config.TokenCharset)
-	while not isTokenUnique(token) do
-		token = string.random(Config.TokenLength, Config.TokenCharset)
-	end
-	return string.random(Config.TokenLength, Config.TokenCharset)
-end
-
 function getObfuscatedEvent(source, resourceName)
 	initNewPlayer(source)
 	if resourceNames[source][resourceName] == nil then
-		resourceNames[source][resourceName] = generateToken()
+		resourceNames[source][resourceName] = exports[GetCurrentResourceName()]:generateToken()
 		if Config.VerboseServer then
 			print("Obfuscated Event for Player ID " .. tostring(source) .. ": Original - " .. tostring(resourceName) .. " Obfuscated - "  .. tostring(resourceNames[source][resourceName]))
 		end
@@ -106,7 +60,7 @@ function getResourceToken(resourceName)
 end
 
 function setupServerResource(resource)
-	resourceTokens[resource] = generateToken()
+	resourceTokens[resource] = exports[GetCurrentResourceName()]:generateToken()
 	if Config.VerboseServer then
 		print("Generated token for resource " .. tostring(resource) .. ": " .. tostring(resourceTokens[resource]))
 	end
@@ -124,7 +78,7 @@ function secureServerEvent(resource, player, token)
 	if resourceTokens[resource] == nil then
 		return true
 	elseif _source == "" then -- If the request came from the server, then no need to authenticate the token
-		return true 
+		return true
 	else
 		if Config.VerboseServer then
 			print("Validating token for " .. tostring(resource) .. " for Player ID " .. tostring(_source) .. ". Provided: " .. tostring(token) .. " Stored: " .. tostring(resourceTokens[resource]))
@@ -169,9 +123,9 @@ AddEventHandler('salty_tokenizer:playerSpawned', function()
 end)
 
 AddEventHandler('onServerResourceStart', function (resource)
-    if resource == GetCurrentResourceName() then
-        init()
-    elseif resourceTokens[resource] ~= nil and initComplete then
+	if resource == GetCurrentResourceName() then
+	init()
+	elseif resourceTokens[resource] ~= nil and initComplete then
 		if Config.VerboseServer then
 			print("NOTICE: " .. resource .. " was restarted and is no longer protected with security tokens!")
 		end
@@ -184,6 +138,6 @@ AddEventHandler("playerDropped", function(player, reason)
 	if Config.VerboseServer then
 		print("Player ID " .. tostring(_source) .. " dropped, purged obfuscated events.")
 	end
-    didPlayerLoad[_source] = false
+	didPlayerLoad[_source] = false
 	resourceNames[_source] = {}
 end)
